@@ -1,14 +1,15 @@
-import express from "express"
-import dotenv from "dotenv"
+import { WebSocketServer } from 'ws';
+import { GameManger } from './Managers/GameManager';
+const wss = new WebSocketServer({ port: 8080 });
 
-dotenv.config()
+const gameManager = new GameManger()
 
-const app = express()
+wss.on('connection', function connection(ws) {
+    gameManager.addUser(ws)
 
-const PORT  = process.env.PORT ||  3000;
+    ws.on('disconnect', function message() {
+        console.log('User disconnected', ws);
+        gameManager.removeUser(ws)
+    });
 
-app.listen(PORT,()=>{
-    console.log(
-        "chess is up"
-    )
-})
+});
