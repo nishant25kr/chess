@@ -1,6 +1,4 @@
-import { Game } from "./Game";
-
-
+import { Game } from "./Game.js";
 
 export class GameManger {
     #games;
@@ -24,26 +22,30 @@ export class GameManger {
     }
 
     addHandlers(socket) {
+        // console.log("cons",this.#pendingUser)
 
         socket.on("message", (data) => {
             const message = JSON.parse(data.toString());
+            
+            console.log(message)
 
             if (message.type === "init_game") {
                 if (this.#pendingUser) {
-
+                    // console.log("has pending user")
                     const game = new Game(this.#pendingUser, socket)
                     this.#games.push(game);
                     this.#pendingUser = null;
 
                 } else {
-                    this.#pendingUser.push(socket)
+                    // console.log("dont has pending user")
+                    this.#pendingUser = socket
                 }
             }
 
             if (message.type === "move") {
                 const game = this.#games.find(game => game.player1 === socket || game.player2 === socket )
                 if(game){
-                    game.makeMove(socket,message.move)
+                    game.makeMove(socket, message.move)
                 }
             }
         })
