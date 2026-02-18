@@ -1,4 +1,6 @@
 import { Chess } from "chess.js"
+const WHITE = "white"
+const BLACK = "black"
 
 export class Game {
     player1;
@@ -9,26 +11,34 @@ export class Game {
 
     constructor(player1, player2) {
         this.player1 = player1,
-        this.player2 = player2
+            this.player2 = player2
         this.#board = new Chess()
         this.#startTime = new Date()
         this.#moveCount = 0;
 
-        this.player1.send("init_game", {
-            payload: {
-                color: "white"
-            }
-        })
-        this.player2.send("init_game", {
-            payload: {
-                color: "black"
-            }
-        })
+        this.player1.send(
+            JSON.stringify({
+                type: "init_game",
+                payload: {
+                    color: WHITE
+                }
+            })
 
+
+        )
+
+        this.player2.send(
+            JSON.stringify({
+                type: "init_game",
+                payload: {
+                    color: WHITE
+                }
+            })
+        )
     }
 
     makeMove(socket, move) {
-        console.log("inside make move",this.#board.moves())
+        console.log("inside make move", this.#board.moves())
 
         if (this.#moveCount % 2 == 0 && socket !== this.player1) {
             console.log("early return 1")
@@ -62,19 +72,25 @@ export class Game {
 
         if (this.#moveCount % 2 === 0) {
             console.log("send 1")
-            this.player2.send("move", {
-                payload: {
-                    move
-                }
-            })
+            this.player2.send(
+                JSON.stringify({
+                    type: "move",
+                    payload: {
+                        move
+                    }
+                })
+            )
         } else {
 
             console.log("send 2")
-            this.player1.send("move", {
-                payload: {
-                    move
-                }
-            })
+            this.player1.send(
+                JSON.stringify({
+                    type: "move",
+                    payload: {
+                        move
+                    }
+                })
+            )
         }
         this.#moveCount++;
 

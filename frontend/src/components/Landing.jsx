@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom"
 const Landing = () => {
     
     const navigate = useNavigate()
-    const [roomId, setRoomId] = useState("")
+
     return (
             
         <div className="grid grid-cols-2 ">
@@ -14,6 +14,8 @@ const Landing = () => {
                 <img src="/chessboard.jpeg"/>
 
             </div>
+
+            
 
             <div className=" border p-3">
                 <h1>Best multi player chess platform </h1>

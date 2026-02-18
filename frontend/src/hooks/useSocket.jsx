@@ -1,29 +1,39 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef } from "react";
 
-const URL = "ws://localhost:8080"
+const URL = "ws://localhost:8080";
 
-export const useSocket = () =>{
-    const [socket,setSocket]  = useState(null)
-    
-    useEffect(()=>{
-        const ws = new WebSocket(URL)
+export const useSocket = () => {
+  const socketRef = useRef(null);
 
-        ws.onopen(()=>{
-            setSocket(ws)
-        })
+  useEffect(() => {
+    if (socketRef.current) return; 
 
-        ws.onclose(()=>{
-            setSocket(null)
-        })
+    const ws = new WebSocket(URL);
+    socketRef.current = ws;
 
-        return ()=>{
-            ws.close()
-        }
+    ws.onopen = () => {
+      console.log("WebSocket connected");
+    };
 
-    },[])
+    ws.onerror = (err) => {
+      console.error("WebSocket error", err);
+    };
 
+    ws.onclose = () => {
+      console.log("WebSocket closed");
+      socketRef.current = null;
+    };
 
-    return (
-       socket
-    )
-}
+    return () => {
+      // only close if still connecting or open
+      if (
+        ws.readyState === WebSocket.CONNECTING ||
+        ws.readyState === WebSocket.OPEN
+      ) {
+        ws.close();
+      }
+    };
+  }, []);
+
+  return socketRef.current;
+};

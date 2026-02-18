@@ -26,7 +26,7 @@ export class GameManger {
 
         socket.on("message", (data) => {
             const message = JSON.parse(data.toString());
-            
+
             console.log(message)
 
             if (message.type === "init_game") {
@@ -43,9 +43,11 @@ export class GameManger {
             }
 
             if (message.type === "move") {
-                const game = this.#games.find(game => game.player1 === socket || game.player2 === socket )
-                if(game){
-                    game.makeMove(socket, message.move)
+
+                const move = message.payload
+                const game = this.#games.find(game => game.player1 === socket || game.player2 === socket)
+                if (game) {
+                    game.makeMove(socket, move)
                 }
             }
         })
