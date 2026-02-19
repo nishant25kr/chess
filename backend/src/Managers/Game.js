@@ -1,98 +1,87 @@
 import { Chess } from "chess.js"
+
 const WHITE = "white"
 const BLACK = "black"
 
 export class Game {
-    player1;
-    player2;
-    #board;
-    #moveCount;
+    player1
+    player2
+    #board
+    #moveCount
     #startTime
 
     constructor(player1, player2) {
-        this.player1 = player1,
-            this.player2 = player2
+        this.player1 = player1
+        this.player2 = player2
         this.#board = new Chess()
         this.#startTime = new Date()
-        this.#moveCount = 0;
+        this.#moveCount = 0
 
-        this.player1.send(
-            JSON.stringify({
-                type: "init_game",
-                payload: {
-                    color: WHITE
-                }
-            })
+        this.player1.send(JSON.stringify({
+            type: "init_game",
+            payload: { color: WHITE }
+        }))
 
-
-        )
-
-        this.player2.send(
-            JSON.stringify({
-                type: "init_game",
-                payload: {
-                    color: WHITE
-                }
-            })
-        )
+        this.player2.send(JSON.stringify({
+            type: "init_game",
+            payload: { color: BLACK }
+        }))
     }
 
     makeMove(socket, move) {
-        console.log("inside make move", this.#board.moves())
 
-        if (this.#moveCount % 2 == 0 && socket !== this.player1) {
-            console.log("early return 1")
-            return
+        if (this.#moveCount % 2 === 0 && socket !== this.player1) return
+        if (this.#moveCount % 2 === 1 && socket !== this.player2) return
 
-        }
+        
 
-        if (this.#moveCount % 2 == 1 && socket !== this.player2) {
-            console.log("early return 2")
-            return
-        }
+        this.#moveCount++
+
+        const player = socket === this.player1 ? this.player1 : this.player2;
+
 
         try {
-            this.#board.moves(move)
-        } catch (error) {
-            return;
+            this.#board.move(move)
+        } 
+        catch (error) {
+
+            player.send(
+                JSON.stringify({
+                    type:'invalid_move',
+                    payload:{
+                        message:'Invalid move'
+                    }
+                })
+            )
+            return; 
         }
-        console.log("inside make move afater adding in move")
+
+
+        const opponent =
+            socket === this.player1 ? this.player2 : this.player1
+
+        
+        player.send(JSON.stringify({
+            type: "move",
+            payload: { move }
+        }))    
+
+        opponent.send(JSON.stringify({
+            type: "move",
+            payload: { move }
+        }))
 
         if (this.#board.isGameOver()) {
-            this.player1.emit("game-over", {
-                payload: {
-                    winner: this.#board.turn() === "w" ? "black" : "white"
-                }
+            const winner =
+                this.#board.turn() === "w" ? BLACK : WHITE
+
+            const msg = JSON.stringify({
+                type: "game-over",
+                payload: { winner }
             })
-            return;
+
+            this.player1.send(msg)
+            this.player2.send(msg)
         }
-
-        console.log("before emit")
-        console.log(this.#moveCount % 2)
-
-        if (this.#moveCount % 2 === 0) {
-            console.log("send 1")
-            this.player2.send(
-                JSON.stringify({
-                    type: "move",
-                    payload: {
-                        move
-                    }
-                })
-            )
-        } else {
-
-            console.log("send 2")
-            this.player1.send(
-                JSON.stringify({
-                    type: "move",
-                    payload: {
-                        move
-                    }
-                })
-            )
-        }
-        this.#moveCount++;
-
     }
 }

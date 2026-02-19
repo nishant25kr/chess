@@ -16,28 +16,52 @@ export class GameManger {
     }
 
     removeUser(socket) {
-        this.#users.filter((user) => {
-            user !== socket
-        })
+
+        this.#users = this.#users.filter(user => user !== socket)
+
+
+        const indexInGame = this.#games.findIndex(
+            g => g.player1 === socket || g.player2 === socket
+        )
+
+        if (indexInGame != -1) {
+            const game = this.#games[indexInGame]
+
+            const opponent = game.player1 === socket
+                ? game.player2
+                : game.player1
+
+
+            opponent.send(
+                JSON.stringify({
+                    type: "game-over",
+                    payload: {
+                        reason: "opponent left"
+                    }
+                })
+            )
+
+            this.#games.splice(indexInGame, 1)
+        }
+
+        if (this.#pendingUser === socket) {
+            this.#pendingUser = null
+        }
     }
 
     addHandlers(socket) {
-        // console.log("cons",this.#pendingUser)
-
         socket.on("message", (data) => {
             const message = JSON.parse(data.toString());
 
-            console.log(message)
+
 
             if (message.type === "init_game") {
                 if (this.#pendingUser) {
-                    // console.log("has pending user")
                     const game = new Game(this.#pendingUser, socket)
                     this.#games.push(game);
                     this.#pendingUser = null;
 
                 } else {
-                    // console.log("dont has pending user")
                     this.#pendingUser = socket
                 }
             }
