@@ -93,6 +93,3 @@ k = king, q = queen, r = rook, b = bishop, n = knight, p = pawn
 
 Example: `wk.png` = white king, `bn.png` = black knight.
 
-## License
-
-MIT
