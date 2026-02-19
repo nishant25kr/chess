@@ -12,15 +12,15 @@ export const useSocket = () => {
     socketRef.current = ws;
 
     ws.onopen = () => {
-      console.log("WebSocket connected");
+
     };
 
     ws.onerror = (err) => {
-      console.error("WebSocket error", err);
+
     };
 
     ws.onclose = () => {
-      console.log("WebSocket closed");
+
       socketRef.current = null;
     };
 
