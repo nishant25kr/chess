@@ -1,4 +1,5 @@
 import { Chess } from "chess.js"
+import redisClient from "../db/redis.js"
 
 const WHITE = "white"
 const BLACK = "black"
@@ -10,7 +11,8 @@ export class Game {
     #moveCount
     #startTime
 
-    constructor(player1, player2) {
+    constructor(gameId, player1, player2) {
+        this.gameId = gameId
         this.player1 = player1
         this.player2 = player2
         this.#board = new Chess()
@@ -19,16 +21,16 @@ export class Game {
 
         this.player1.send(JSON.stringify({
             type: "init_game",
-            payload: { color: WHITE }
+            payload: { color: WHITE, gameId: gameId }
         }))
 
         this.player2.send(JSON.stringify({
             type: "init_game",
-            payload: { color: BLACK }
+            payload: { color: BLACK, gameId: gameId }
         }))
     }
 
-    makeMove(socket, move) {
+    makeMove(gameId, socket, move) {
 
         if (this.#moveCount % 2 === 0 && socket !== this.player1) return
         if (this.#moveCount % 2 === 1 && socket !== this.player2) return
@@ -41,6 +43,10 @@ export class Game {
 
 
         try {
+            redisClient.lPush({
+                key:gameId,
+                values: JSON.stringify(move)
+            })
             this.#board.move(move)
         } 
         catch (error) {

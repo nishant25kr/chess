@@ -1,6 +1,8 @@
 import { Game } from "./Game.js";
+import generateRandomGameId from "../utils/generateGameId.js"
 
-export class GameManger {
+
+export class GameManager {
     #games;
     #pendingUser;
     #users;
@@ -53,11 +55,10 @@ export class GameManger {
         socket.on("message", (data) => {
             const message = JSON.parse(data.toString());
 
-
-
             if (message.type === "init_game") {
                 if (this.#pendingUser) {
-                    const game = new Game(this.#pendingUser, socket)
+                    const gameId = generateRandomGameId()
+                    const game = new Game(gameId, this.#pendingUser, socket)
                     this.#games.push(game);
                     this.#pendingUser = null;
 
@@ -68,10 +69,17 @@ export class GameManger {
 
             if (message.type === "move") {
 
-                const move = message.payload
-                const game = this.#games.find(game => game.player1 === socket || game.player2 === socket)
+                const move = {
+                    from: message.payload.from,
+                    to: message.payload.to,
+                }
+                console.log(move)
+                console.log(message.payload)
+
+                const gameId = message.payload.gameId
+                const game = this.#games.find(game => game.gameId === gameId)
                 if (game) {
-                    game.makeMove(socket, move)
+                    game.makeMove(gameId, socket, move)
                 }
             }
         })

@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react"
 import { Chessboard } from "./Chessboard"
 import { Chess } from "chess.js"
 
-const WS_URL = "https://chess-53eh.onrender.com"
+const WS_URL = import.meta.env.VITE_API_URL
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap');
