@@ -16,10 +16,12 @@ model User {
 
   whiteGames Game[] @relation("WhitePlayer")
   blackGames Game[] @relation("BlackPlayer")
+
+  accessToken String 
 }
 
 model Game {
-  id            Int      @id @default(autoincrement())
+  id            String      @id 
 
   whitePlayer   User     @relation("WhitePlayer", fields: [whitePlayerId], references: [id])
   whitePlayerId Int
@@ -36,7 +38,7 @@ model Game {
 model Move {
   id        Int      @id @default(autoincrement())
   game      Game     @relation(fields: [gameId], references: [id])
-  gameId   Int
+  gameId   String
 
   from      String
   to        String

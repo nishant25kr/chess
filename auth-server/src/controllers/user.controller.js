@@ -85,7 +85,8 @@ export const login = async (req, res) => {
             .cookie("accessToken", accessToken)
             .json({
                 user: safeUser,
-                message: "Login successful"
+                message: "Login successful",
+                accessToken:accessToken
             })
 
     } catch (error) {
@@ -142,7 +143,8 @@ export const loginwithgoogle = async (req, res) => {
             .cookie("accessToken", accessToken)
             .json({
                 user: safeUser,
-                message: "Login successful"
+                message: "Login successful",
+                accessToken: accessToken
             })
 
     } catch (error) {

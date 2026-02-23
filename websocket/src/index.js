@@ -2,16 +2,14 @@ import express from "express";
 import http from "http";
 import { WebSocketServer } from "ws";
 import { GameManager } from "./Managers/GameManager.js"
-import userRoute from "./routes/user.routes.js";
-import prisma from "./db/db.js";
 import dotenv from "dotenv";
 import redisClient from "./db/redis.js";
+import { extractAuthUser } from "./db/auth.js";
 
 
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use("/api/user", userRoute);
 
 const server = http.createServer(app);
 const gameManager = new GameManager();
@@ -19,10 +17,6 @@ let client
 
 async function startServer() {
     try {
-        // DB
-        await prisma.$connect();
-        console.log("DB connected");
-
         // Redis
         await redisClient.connect();
 
@@ -30,7 +24,9 @@ async function startServer() {
         const wss = new WebSocketServer({ server });
 
         wss.on("connection", (ws) => {
-            gameManager.addUser(ws);
+            const token = url.parse(req.url, true).query.token;
+            const user = extractAuthUser(token, ws);
+            gameManager.addUser(user);
 
             ws.on("close", () => {
                 gameManager.removeUser(ws);

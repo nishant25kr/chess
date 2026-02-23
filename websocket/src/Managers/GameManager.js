@@ -1,6 +1,6 @@
 import { Game } from "./Game.js";
 import generateRandomGameId from "../utils/generateGameId.js"
-
+import axios from "axios"
 
 export class GameManager {
     #games;
@@ -12,9 +12,9 @@ export class GameManager {
         this.#users = []
     }
 
-    addUser(socket) {
-        this.#users.push(socket)
-        this.addHandlers(socket)
+    addUser(user) {
+        this.#users.push(user.ws)
+        this.addHandlers(user)
     }
 
     removeUser(socket) {
@@ -51,19 +51,20 @@ export class GameManager {
         }
     }
 
-    addHandlers(socket) {
-        socket.on("message", (data) => {
+    addHandlers(user) {
+        user.ws.on("message", (data) => {
             const message = JSON.parse(data.toString());
 
             if (message.type === "init_game") {
                 if (this.#pendingUser) {
                     const gameId = generateRandomGameId()
-                    const game = new Game(gameId, this.#pendingUser, socket)
+                    DbCreate(gameId, user.accessToken, this.#pendingUser.accessToken)
+                    const game = new Game(gameId, this.#pendingUser, user.ws)
                     this.#games.push(game);
                     this.#pendingUser = null;
 
                 } else {
-                    this.#pendingUser = socket
+                    this.#pendingUser = user
                 }
             }
 
@@ -72,10 +73,8 @@ export class GameManager {
                 const game = this.#games.find(game => game.gameId === gameId)
                 if (game) {
                     game.makeMove(socket, message.payload)
-                }
+                }        
             }
         })
-
     }
-
 }
