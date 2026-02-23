@@ -30,7 +30,7 @@ export class Game {
         }))
     }
 
-    makeMove(gameId, socket, move) {
+    makeMove(socket, payload) {
 
         if (this.#moveCount % 2 === 0 && socket !== this.player1) return
         if (this.#moveCount % 2 === 1 && socket !== this.player2) return
@@ -39,14 +39,18 @@ export class Game {
 
         this.#moveCount++
 
+        const move = {
+            from: payload.from,
+            to : payload.to
+        }
         const player = socket === this.player1 ? this.player1 : this.player2;
 
 
         try {
-            redisClient.lPush({
-                key:gameId,
-                values: JSON.stringify(move)
-            })
+            redisClient.lPush(
+                "move",
+                JSON.stringify(payload)
+            )
             this.#board.move(move)
         } 
         catch (error) {

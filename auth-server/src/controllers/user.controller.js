@@ -1,7 +1,7 @@
-import { PrismaClient } from "@prisma/client"
-import { hashPassword, verifyPassword } from "../utils/bcrypt.js"
 
-const prisma = new PrismaClient()
+import prisma from "../db/prismaClient.js"
+import { hashPassword, verifyPassword } from "../utils/bcrypt.js"
+import {generateAccesstoken} from '../utils/authService.js'
 
 export const signup = async (req, res) => {
     try {
@@ -35,10 +35,11 @@ export const signup = async (req, res) => {
 
         const { password: _, ...safeUser } = user
 
-        return res.status(201).json({
-            user: safeUser,
-            message: "User created successfully"
-        })
+        return res.status(201)
+            .json({
+                user: safeUser,
+                message: "User created successfully"
+            })
 
     } catch (error) {
         console.error(error)
@@ -78,10 +79,14 @@ export const login = async (req, res) => {
 
         const { password: _, ...safeUser } = user
 
-        return res.status(200).json({
-            user: safeUser,
-            message: "Login successful"
-        })
+        const accessToken = generateAccesstoken(safeUser)
+
+        return res.status(200)
+            .cookie("accessToken", accessToken)
+            .json({
+                user: safeUser,
+                message: "Login successful"
+            })
 
     } catch (error) {
         console.error(error)
@@ -90,3 +95,61 @@ export const login = async (req, res) => {
         })
     }
 }
+
+export const logout = async (req, res) => {
+    try {
+        res.clearCookie("accessToken")
+        return res.status(200).json({
+            message: "Logout successful"
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: "Internal server error"
+        })
+    }
+}   
+
+export const loginwithgoogle = async (req, res) => {
+    try {
+        const { email, name } = req.body
+
+        if (!email || !name) {
+            return res.status(400).json({
+                message: "Email and name are required"
+            })
+        }
+
+        let user = await prisma.user.findUnique({
+            where: { email }
+        })
+
+        if (!user) {
+            user = await prisma.user.create({
+                data: {
+                    email,
+                    name,
+                    password: null
+                }
+            })
+        }
+
+        const { password: _, ...safeUser } = user
+
+        const accessToken = generateAccesstoken(safeUser)
+
+        return res.status(200)
+            .cookie("accessToken", accessToken)
+            .json({
+                user: safeUser,
+                message: "Login successful"
+            })
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: "Internal server error"
+        })
+    }
+}   
+
