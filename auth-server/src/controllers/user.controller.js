@@ -1,7 +1,7 @@
 
 import prisma from "../db/prismaClient.js"
 import { hashPassword, verifyPassword } from "../utils/bcrypt.js"
-import {generateAccesstoken} from '../utils/authService.js'
+import { generateAccesstoken } from '../utils/authService.js'
 
 export const signup = async (req, res) => {
     try {
@@ -81,12 +81,19 @@ export const login = async (req, res) => {
 
         const accessToken = generateAccesstoken(safeUser)
 
-        return res.status(200)
-            .cookie("accessToken", accessToken)
+        const option = {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None"
+        }
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, option)
             .json({
                 user: safeUser,
                 message: "Login successful",
-                accessToken:accessToken
+                accessToken: accessToken
             })
 
     } catch (error) {
@@ -109,7 +116,7 @@ export const logout = async (req, res) => {
             message: "Internal server error"
         })
     }
-}   
+}
 
 export const loginwithgoogle = async (req, res) => {
     try {
@@ -153,5 +160,5 @@ export const loginwithgoogle = async (req, res) => {
             message: "Internal server error"
         })
     }
-}   
+}
 
