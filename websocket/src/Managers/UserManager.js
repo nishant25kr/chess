@@ -6,8 +6,7 @@ export class UserManager{
         this.#users = []
     }
 
-    addUser(Tokene,ws){
-        const user = extractAuthUser(Tokene,ws);
+    addUser(user){
         if(!user){
             console.log("error while decoding user")
             return false
@@ -17,7 +16,7 @@ export class UserManager{
     }
 
     getUser(socket){
-        const user = this.#users.find(u => u.ws === socket)
+        const user = this.#users.find(u => u.ws === socket);
         return user;
     }
 

@@ -17,7 +17,7 @@ model User {
   whiteGames Game[] @relation("WhitePlayer")
   blackGames Game[] @relation("BlackPlayer")
 
-  accessToken String 
+  accessToken String? 
 }
 
 model Game {

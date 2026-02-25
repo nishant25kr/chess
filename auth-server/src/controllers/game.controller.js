@@ -51,3 +51,43 @@ export const createGame = async (req, res) => {
         });
     }
 };
+
+export const moves = async (req, res) => {
+    try {
+        const { gameId, from, to } = req.body;
+
+        if (!gameId) {
+            return res.status(400).json({
+                message: "gameId is required"
+            });
+        }
+
+        const game = await prisma.game.findUnique({
+            where: { id: gameId }
+        });
+
+        if (!game) {
+            return res.status(404).json({
+                message: "Game not found"
+            });
+        }
+        const moves = await prisma.move.create({
+            data: {
+                gameId,
+                from,
+                to
+            }
+        });
+
+        return res.status(200).json({
+            message: "Move recorded successfully",
+            move: moves
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+};

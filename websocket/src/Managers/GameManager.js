@@ -2,7 +2,9 @@ import { Game } from "./Game.js";
 import generateRandomGameId from "../utils/generateGameId.js"
 import { UserManager } from "./UserManager.js";
 import { createdGameInDB } from "../db/DbCreate.js";
-const userManager = new UserManager()
+// const userManager = UserManager()
+import userManager from "./userManagerInstance.js";
+
 
 export class GameManager {
     #games;
@@ -51,27 +53,31 @@ export class GameManager {
     // }
 
     addHandlers(socket) {
-        socket("message", (data) => {
+        socket.on("message", async(data) => {
             const message = JSON.parse(data.toString());
 
             if (message.type === "init_game") {
                 if (this.#pendingUser) {
-                    const gameId = generateRandomGameId()
                     const user1 = userManager.getUser(socket)
                     const user2 = userManager.getUser(this.#pendingUser)
-                    createdGameInDB(gameId, user1.accessToken, user2.accessToken)
-                    const game = new Game(gameId, this.#pendingUser, socket)
-                    this.#games.push(game);
-                    this.#pendingUser = null;
-
+                    const gameId = generateRandomGameId()
+                    const res = await createdGameInDB(gameId, user1.id, user2.id)
+                    if(res){
+                        const game = new Game(gameId, this.#pendingUser, socket)
+                        this.#games.push(game);
+                        this.#pendingUser = null;
+                    }else{
+                        console.error("error while updating db")
+                        return ;
+                    }
+                    
                 } else {
                     this.#pendingUser = socket
                 }
             }
 
             if (message.type === "move") {
-                const gameId = message.payload.gameId
-                const game = this.#games.find(game => game.gameId === gameId)
+                const game = this.#games.find(game => game.player1 === socket || game.player2 === socket )
                 if (game) {
                     game.makeMove(socket, message.payload)
                 }        

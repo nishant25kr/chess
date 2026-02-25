@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react"
 import { Chessboard } from "./Chessboard"
 import { Chess } from "chess.js"
+import cookie from "cookie"
 
 const WS_URL = import.meta.env.VITE_API_URL
 
@@ -286,6 +287,8 @@ export const Game = () => {
 
   // WebSocket
   useEffect(() => {
+        document.cookie = 'sessionId=abc123; path=/';
+
     const ws = new WebSocket(WS_URL)
     socketRef.current = ws
 

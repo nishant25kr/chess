@@ -37,7 +37,7 @@ export class Game {
         this.#moveCount++
 
         const move = {
-            gameId: payload.gameId,
+            gameId: this.gameId,
             from: payload.from,
             to : payload.to
         }
@@ -45,11 +45,12 @@ export class Game {
         const player = socket === this.player1 ? this.player1 : this.player2;
 
         try {
+            this.#board.move(payload)
+
             redisClient.lPush(
                 "move",
-                JSON.stringify(payload)
+                JSON.stringify(move)
             )
-            this.#board.move(move)
         } 
         catch (error) {
 

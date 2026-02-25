@@ -1,17 +1,17 @@
 import axios from "axios";
 
-export async function createdGameInDB(gameId ,token1 , token2){
+export async function createdGameInDB(id, whitePlayerId, blackPlayerId) {
     try {
-        const response = await axios.post("http://localhost:3000/api/game/create-game",{gameId ,token1 , token2})
-        if(response){
-            console.log(response)
-            return;
-        }else{
-            console.log("db error")
+        const response = await axios.post("http://localhost:3000/api/game/create-game", { id, whitePlayerId, blackPlayerId })
+        if (response.status == 201) {
+            return true;
+        } else {
+            return false;
         }
+
     } catch (error) {
-        console.log("db error",error.message)
-        
+        console.log("db error", error.message)
+
     }
 
 }

@@ -20,8 +20,6 @@ export const Login = () => {
                     }
                 }
             );
-            console.log('Response data:', response.data);
-            console.log('Status code:', response.status);
 
             if(response.status == 200){
                 navigate("/game")

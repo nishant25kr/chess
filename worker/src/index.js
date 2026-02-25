@@ -1,6 +1,7 @@
 // redis.js
 import { createClient } from "redis";
 import dotenv from "dotenv";
+import axios from "axios";
 
 dotenv.config()
 
@@ -19,6 +20,8 @@ redisClient.on("error", (err) => {
   console.error("Redis Client Error:", err);
 });
 
+const  DATABASE_URL = process.env.DATABASE_URL || "http://localhost:3000/api/game"
+
 export default redisClient;
 
 redisClient.connect()
@@ -27,7 +30,18 @@ async function main(){
     try{
         while(true){
             const moves = await redisClient.brPop("move",0)
-            console.log(moves)
+            const parsedMoves = JSON.parse(moves.element)
+            await axios.post(`http://localhost:3000/api/game/moves`, {
+                gameId: parsedMoves.gameId,
+                from: parsedMoves.from,
+                to: parsedMoves.to
+            })
+             .then(res => {
+                console.log("move saved in db")
+             })
+             .catch(err => {
+                console.error("error while saving move in db", err)
+            })
         }
     }
     catch(error){
