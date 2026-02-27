@@ -181,14 +181,14 @@ const CSS = `
 `
 
 const BOARD = [
-  ["♜","♞","♝","♛","♚","♝","♞","♜"],
-  ["♟","♟","♟","♟","♟","♟","♟","♟"],
+  ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
+  ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
   Array(8).fill(""), Array(8).fill(""),
   Array(8).fill(""), Array(8).fill(""),
-  ["♙","♙","♙","♙","♙","♙","♙","♙"],
-  ["♖","♗","♘","♕","♔","♘","♗","♖"],
+  ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
+  ["♖", "♗", "♘", "♕", "♔", "♘", "♗", "♖"],
 ]
-const HL = [[4,3],[4,4],[3,3],[3,4]]
+const HL = [[4, 3], [4, 4], [3, 3], [3, 4]]
 
 const Landing = () => {
   const navigate = useNavigate()
@@ -214,9 +214,7 @@ const Landing = () => {
           <div className="l-logo-icon">♟</div>
           Grandmaster
         </div>
-        <button className="l-nav-cta" onClick={() => navigate("/game")}>
-          Play Now
-        </button>
+
       </nav>
 
       {/* Left */}
@@ -234,14 +232,28 @@ const Landing = () => {
           Challenge opponents in real time.
           Pure strategy, zero friction.
         </p>
+        <div className=" flex gap-2">
+          <button className="l-btn" onClick={() => navigate("/login")}>
+            <div>
+              Login
 
-        <button className="l-btn" onClick={() => navigate("/game")}>
-          Join a Game
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"/>
-            <polyline points="12 5 19 12 12 19"/>
-          </svg>
-        </button>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </button>
+          <button className="l-btn m-2" onClick={() => navigate("/signup")}>
+            <div>
+              SignUp
+
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Right */}
@@ -252,7 +264,7 @@ const Landing = () => {
             {BOARD.map((row, r) =>
               row.map((piece, c) => {
                 const isLight = (r + c) % 2 === 0
-                const isHL    = HL.some(([hr, hc]) => hr === r && hc === c)
+                const isHL = HL.some(([hr, hc]) => hr === r && hc === c)
                 return (
                   <div key={`${r}-${c}`} className={`l-cell ${isLight ? "light" : "dark"} ${isHL ? "hl" : ""}`}>
                     {piece && <div className="l-piece">{piece}</div>}

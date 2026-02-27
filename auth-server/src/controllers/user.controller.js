@@ -6,7 +6,7 @@ import { generateAccesstoken } from '../utils/authService.js'
 export const signup = async (req, res) => {
     try {
         const { email, password, name } = req.body
-
+        console.log("Signup request body:", req.body) 
         if (!email || !password || !name) {
             return res.status(400).json({
                 message: "Email, name and password are required"
